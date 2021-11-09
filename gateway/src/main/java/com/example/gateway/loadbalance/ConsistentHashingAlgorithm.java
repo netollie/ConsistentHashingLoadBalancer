@@ -64,6 +64,7 @@ public class ConsistentHashingAlgorithm <T> {
     public ConsistentHashingAlgorithm(
         ToIntFunction<String> hashingAlgorithm, Function<T, String> nodeNameGenerator, int virtualNodeCount) {
         this.hashingAlgorithm = hashingAlgorithm;
+        this.nodeNameGenerator = nodeNameGenerator;
         this.virtualNodeCount = virtualNodeCount;
     }
 
@@ -126,7 +127,7 @@ public class ConsistentHashingAlgorithm <T> {
     private void consumeNode(T node, BiConsumer<Integer, T> nodeConsumer) {
         // 生成虚拟节点，避免出现分布不均的情况
         for (int i = 0; i < virtualNodeCount; i++) {
-            String virtualNodeName = String.format("%s#%d", node, i);
+            String virtualNodeName = String.format("%s#%d", nodeNameGenerator.apply(node), i);
             Integer virtualNodeHashCode = hashingAlgorithm.applyAsInt(virtualNodeName);
             nodeConsumer.accept(virtualNodeHashCode, node);
         }
